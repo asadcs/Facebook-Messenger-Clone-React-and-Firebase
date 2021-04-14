@@ -8,6 +8,7 @@ import {
   Input,
   InputLabel,
 } from "@material-ui/core";
+import Message from "./Message";
 
 function App() {
   const [input, setInput] = useState("");
@@ -44,7 +45,7 @@ function App() {
             text="send message"
             disabled={!input}
           >
-            
+            send message
           </Button>
         </FormControl>
         {/* <input value={input} onChange={ValueHandler}></input> */}
@@ -54,7 +55,9 @@ function App() {
       </form>
 
       {messages.map((message, idx) => (
-        <p key={idx}>{message}</p>
+        // <p </p>
+        <Message key={idx} message={message}>
+        </Message>
       ))}
     </div>
   );
