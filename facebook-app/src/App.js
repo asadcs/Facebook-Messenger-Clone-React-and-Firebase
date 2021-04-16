@@ -1,87 +1,136 @@
+import React, { useState, useEffect } from "react";
+//import GithubCorner from "react-github-corner";
+//import DateFormat from "dateformat";
+import { FormControl, Input } from "@material-ui/core";
 import "./App.css";
-import { useEffect, useState } from "react";
-import {
-  Button,
-  Container,
-  FormControl,
-  FormHelperText,
-  Input,
-  InputLabel,
-} from "@material-ui/core";
 import Message from "./Message";
 import db from "./firebase";
+import firebase from "firebase";
+import FlipMove from "react-flip-move";
+import SendIcon from "@material-ui/icons/Send";
+import { IconButton } from "@material-ui/core";
 
 function App() {
+  // useState = variable in REACT
   const [input, setInput] = useState("");
-//   const [messages, setMessages] = useState([
-//     {username:'Asad' , message:'Hello'},
-//     {username:'Asadq' , message:'Hello3'},
-//     {username:'Asad3' , message:'Hello4'}
-// ]);
-
   const [messages, setMessages] = useState([]);
+  const [username, setUsername] = useState("");
 
-  const [username, setUsername] = useState('')
+  useEffect(() => {
+    // run once when the app component loads
+    db.collection("messages")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        setMessages(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            message: doc.data(),
+          }))
+        );
+      });
+  }, []);
 
-useEffect(() => {
-  setUsername(prompt('Enter yout name'))
- 
-}, [])
+  // useEffect = run code on a condition
+  useEffect(() => {
+    let username = prompt("Please enter your name");
+    console.log(username);
+    if (username === "") username = "Unknown";
+    setUsername(username);
+    // if its blank inside [], this code runs ONCE when the app components load
+    // if we have a variable like input, it will be firing at every change
+  }, []); // condition
 
+  const sendMessage = (event) => {
+    // all the logic to send the message
+    event.preventDefault(); // prevent form to refresh the page
 
-useEffect(() => {
-  db.collection('messages').onSnapshot(snapshot=>{
-    snapshot.docs.map(doc=>console.log(doc.data()))
-    setMessages(snapshot.docs.map(doc=>doc.data()))
-  })
-}, [])
+    db.collection("messages").add({
+      username: username,
+      message: input,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    // append Message input to messages array
+    /*setMessages([
+      ...messages,
+      {
+        username: username,
+        message: input,
+      },
+    ]);*/
 
-  const ValueHandler = (e) => {
-    setInput(e.target.value);
-  };
+    setTimeout(() => {
+      const chat = document.querySelector("#chat");
+      chat.scroll({ behavior: "smooth" });
+      chat.scrollTop = chat.scrollHeight;
+    }, 500);
 
-  const onSubmitHandler = (e) => {
-    e.preventDefault();
-    setMessages([...messages, {username:username , text:input} ]);
-    console.log(messages);
     setInput("");
   };
 
+  // const githubCornerUrl =
+  //   "https://github.com/leopaul29/facebook-messenger-clone";
+    const githubCornerUrl =
+    "https://github.com/asadcs/Facebook-Messenger-Clone-React-and-Firebase";
+
+
   return (
     <div className="App">
-      <form>
-        <h1>Facebook Messenger Clone React and Firebase</h1>
-        <h2>Welcome {username}</h2>
-        <FormControl>
-          <InputLabel htmlFor="my-input">message</InputLabel>
-          <Input
-            id="my-input"
-            aria-describedby="my-helper-text"
-            value={input}
-            onChange={ValueHandler}
-          />
-          <Button
-            type="submit"
-            onClick={onSubmitHandler}
-            variant="contained"
-            color="primary"
-            text="send message"
-            disabled={!input}
-          >
-            send message
-          </Button>
-        </FormControl>
-        {/* <input value={input} onChange={ValueHandler}></input> */}
-        {/* <Button text="Submit" type="submit" onClick={onSubmitHandler}>
-        
-      </Button> */}
-      </form>
+      <img src="https://facebookbrand.com/wp-content/uploads/2018/09/Header-e1538151782912.png?w=80&h=80" />
 
-      {messages.map((message, idx) => (
-        // <p </p>
-        <Message key={idx} message={message} username={username}>
-        </Message>
-      ))}
+
+      {/* <GithubCorner
+        href={githubCornerUrl}
+        bannerColor="#70B7FD"
+        octoColor="#fff"
+        size={80}
+        direction="right"
+        target="_blank"
+        rel="noopener noreferrer"
+      /> */}
+      <div className="container">
+        <div className="header">
+          {/* <img
+            className="header__logo"
+            src="https://cdn.freebiesupply.com/logos/large/2x/facebook-messenger-logo-png-transparent.png"
+            alt="messenger logo"
+          /> */}
+          <h1 className="header__title">Messenger App</h1>
+          <h2 className="header__subtitle">Welcome {username}</h2>
+        </div>
+
+        <div id="chat" className="messageList">
+          <FlipMove>
+            {messages.map(({ id, message }) => {
+              return <Message key={id} username={username} message={message} />;
+            })}
+          </FlipMove>{" "}
+        </div>
+        <div className="footer">
+          {/* form and button type submit allow the enter to send the message */}
+          <form className="app__form">
+            <FormControl className="app__formControl">
+              {/* set the input value of the state */}
+              <Input
+                className="app__input"
+                placeholder="Enter a message..."
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+              />
+
+              <IconButton
+                className="app__iconButton"
+                disabled={!input}
+                variant="contained"
+                color="primary"
+                type="submit"
+                onClick={sendMessage}
+              >
+                <SendIcon />
+              </IconButton>
+            </FormControl>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

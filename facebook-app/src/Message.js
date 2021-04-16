@@ -1,70 +1,37 @@
-// import React from 'react'
-
-// export default function Message(props) {
-// const{key,message,username}=props
-
-//     return (
-//         <h2 key={key}>{message.username}: {message.text}</h2>
-//     )
-// }
-
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import React, { forwardRef } from "react";
+//import DateFormat from "dateformat";
+import Card from "@material-ui/core/Card";
+import Tooltip from "@material-ui/core/Tooltip";
+import CardContent from "@material-ui/core/CardContent";
+import Typography from "@material-ui/core/Typography";
 import "./Message.css";
 
-const useStyles = makeStyles({
-  root: {
-    minWidth: 275,
-  },
-  bullet: {
-    display: 'inline-block',
-    margin: '0 2px',
-    transform: 'scale(0.8)',
-  },
-  title: {
-    fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-});
-
-export default function Message(props) {
-    const{key,message,username}=props
-  const classes = useStyles();
-  const bull = <span className={classes.bullet}>•</span>;
-const isUserLoggedIn=  username===message.username?true:false
+const Message = forwardRef(({ message, username }, ref) => {
+  const isUser = username === message.username;
+  /*let timestamp = message.timestamp;
+  if (timestamp == null) {
+    timestamp = firebase.firestore.Timestamp.fromDate(new Date());
+  }
+  const dateMessage = timestamp.toDate();
+  const formatedDate = DateFormat(
+    dateMessage,
+    "dddd, mmmm dS, yyyy, h:MM:ss TT"
+  );*/
 
   return (
-    <div className={`message ${isUserLoggedIn && 'message__user'}`}>
-    <Card className={isUserLoggedIn?"message__userCard":"message__guestCard"}>
-      <CardContent>
-        <Typography         
-        color="white" 
-        variant="h5" 
-        component="h2"
-        >
-      { message.username}: { message.message}
-        </Typography>
-        {/* <Typography variant="h5" component="h2">
-          
-          {message.text}
-        </Typography> */}
-       
-        {/* <Typography variant="body2" component="p">
-          well meaning and kindly.
-          <br />
-          {'"a benevolent smile"'}
-        </Typography> */}
-      </CardContent>
-     
-    </Card>
-    
+    <div ref={ref} className={`messages ${isUser && "messages__user"}`}>
+      <div className="username">
+        {!isUser && `${message.username || "Unknown User"}`}
+      </div>
+      <Card className={isUser ? "messages__userCard" : "messages__guestCard"}>
+        <CardContent>
+          <Typography variant="h5" component="h2">
+           {!isUser && `${message.username || "Unknown User"}:` }  {message.message}
+          </Typography>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+});
+
+export default Message;
