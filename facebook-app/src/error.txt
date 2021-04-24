@@ -2,6 +2,6 @@ to deploy on firebase
 step 01: npm install -g firebase-tools
 step 02: firebase init
 if error occurs run Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-step 03 : build
-step 04: run build 
+step 03 : directory public option ? build
+step 04: npm run build 
 step 05: firebase deploy
